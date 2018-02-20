@@ -11,11 +11,9 @@ import 'rxjs';
 export class AppComponent {
   title = 'app';
 
-
   constructor (private http: Http){
 
   }
-
 
 
   // Define our base layers so we can reference them multiple times
