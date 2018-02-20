@@ -13,8 +13,7 @@
           "input": "../node_modules/leaflet/dist/images",
           "output": "leaflet/"
         },
-        "assets",
-        "favicon.ico"
+        "assets"
       ],
       "index": "index.html",
       "main": "main.ts",

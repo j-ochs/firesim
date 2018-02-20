@@ -1,9 +1,11 @@
 <!-- <div class="banner">
   <p>Firesim - Predictive Wildfire Simulator</p>
 </div> -->
-<div class="map"
-leaflet
-(leafletMapReady)="onMapReady($event)"
-[leafletOptions]="options"
-[leafletLayersControl]="layersControl">
+<div class="map" leaflet (leafletMapReady)="onMapReady($event)" [leafletOptions]="options" [leafletLayersControl]="layersControl">
+    <div class="leaflet-top" style="padding-left:50px">
+      <div class="info leaflet-control-coordinates leaflet-control">
+        <h3 style="margin-top:0px">Firesim</h3>
+        <h4>Predictive Wildfire Simulator</h4>
+      </div>
+    </div>
 </div>
