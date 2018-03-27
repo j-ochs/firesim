@@ -3,9 +3,10 @@
 </div> -->
 <div class="map" leaflet (leafletMapReady)="onMapReady($event)" [leafletOptions]="options" [leafletLayersControl]="layersControl">
     <div class="leaflet-top" style="padding-left:50px">
-      <div class="info leaflet-control-coordinates leaflet-control">
+      <div class="info leaflet-control-coordinates leaflet-control" style="z-index: 800">
         <h3 style="margin-top:0px">Firesim</h3>
         <h4>Predictive Wildfire Simulator</h4>
+        <button *ngIf="gridSelected" (click)="showGrid($event)">StartSimulation</button>
       </div>
     </div>
 </div>

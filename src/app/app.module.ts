@@ -3,6 +3,9 @@ import { NgModule } from '@angular/core';
 import { HttpModule } from "@angular/http";
 import { LeafletModule } from "@asymmetrik/ngx-leaflet";
 import { AppComponent } from './app.component';
+import { WeatherService } from "../app/weather/weather.service";
+import { ElevationService } from "../app/elevation/elevation.service";
+import { AppConfig, APP_CONFIG } from "./app.config";
 
 @NgModule({
   declarations: [
@@ -13,7 +16,10 @@ import { AppComponent } from './app.component';
     LeafletModule.forRoot(),
     HttpModule
   ],
-  providers: [],
+  providers: [
+    WeatherService, { provide: APP_CONFIG, useValue: AppConfig },
+    ElevationService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { } 
