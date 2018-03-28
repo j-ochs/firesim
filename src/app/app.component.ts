@@ -138,7 +138,6 @@ export class AppComponent {
     L.control.scale({ metric: false }).addTo(map);
     L.control.coordinates({ position: "bottomleft" }).addTo(map);
     //console.log('hex: ', this.hexgrid);
-
     // for (var i=0; i<this.hexgrid.features.length; i++) {
     //   var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
     // }
@@ -150,17 +149,18 @@ export class AppComponent {
           this.weatherForecastData = res;
           console.log('res: ', this.weatherForecastData);
           var afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
-            this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description)
+            this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
+          this.weatherForecastData.list[0].main.temp);
 
           var popup = L.popup()
             .setLatLng(e.latlng)
-            .setContent('Forecast for ' + this.weatherForecastData.city.name + ' on ' + this.weatherForecastData.list[0].dt_txt + ': '
+            .setContent(this.weatherForecastData.city.name + ' at ' + this.weatherForecastData.list[0].dt_txt + ': '
             + this.weatherForecastData.list[0].weather[0].description + '<br>' + 'Wind speed: ' + this.weatherForecastData.list[0].wind.speed
-            + ' | degrees ' + this.weatherForecastData.list[0].wind.deg + ' | Humidity: ' + this.weatherForecastData.list[0].main.humidity + '<br> <b>AFTI Score: ' + afti + '</b>')
+            + ' , ' + this.weatherForecastData.list[0].wind.deg + ' | Humidity: ' + this.weatherForecastData.list[0].main.humidity
+            + '<br> Temp: ' + this.weatherForecastData.list[0].main.temp + ' | Elev: ' + this.elevationData.results[0].elevation/.3048 +  '<br><b> AFTI Score: ' + afti + '</b><br>')
             .openOn(map);
         },
         error => this.errorMessage = <any>error);
-
       console.log('ELEV: ', this.getElevationByCoords(e.latlng.lat, e.latlng.lng));
 
       if (!this.gridOnMap) {
@@ -169,7 +169,6 @@ export class AppComponent {
       }
     });
     
-
   }
 
 
@@ -186,7 +185,6 @@ export class AppComponent {
     var d = R * c; // Distance in km
     return d;
   }
-  
   deg2rad(deg) {
     return deg * (Math.PI/180)
   }
@@ -206,26 +204,23 @@ export class AppComponent {
   }
 
 
-  ngOnInit() {
-    console.log('On Init');
-  }
+  ngOnInit() {}
+
 
   getForecastByCoords(lat: any, lng: any) {
     //http://api.openweathermap.org/data/2.5/forecast?lat=35.0845611&lon=137.1706404&units=metric&appid=0b9ae90c37b492b7da3c843ff795f217"
     this._weatherService.getWeatherForecast(lat, lng)
       .subscribe(res => {
         this.weatherForecastData = res;
-        console.log('res: ', this.weatherForecastData);
+        console.log('WEATHER res: ', this.weatherForecastData);
       },
       error => this.errorMessage = <any>error);
     return this.weatherForecastData;
   }
 
   getElevationByCoords(lat: any, lng: any) {
-    //http://api.openweathermap.org/data/2.5/forecast?lat=35.0845611&lon=137.1706404&units=metric&appid=0b9ae90c37b492b7da3c843ff795f217"
     this._elevationService.getElevation(lat, lng)
       .subscribe(res => {
-        //res.setHeader('Access-Control-Allow-Origin','*') 
         this.elevationData = res;
         console.log('ELEVATION res: ', this.elevationData);
       },
@@ -234,9 +229,9 @@ export class AppComponent {
   }
 
 
-  calculateAfti(wind: number, hum: number, precip: String) {
+  calculateAfti(wind: number, hum: number, precip: String, temp: number) {
     //WIND
-    var w, h, p;
+    var w, h, p, t;
     if (wind >= 0 && wind < 6) { w = 1 }
     else if (wind >= 6 && wind < 12) { w = 2 }
     else if (wind >= 12 && wind < 19) { w = 3 }
@@ -247,12 +242,16 @@ export class AppComponent {
     else if (hum <= 50 && hum > 26) { h = 3 }
     else { h = 4 }
     //PRECIPITATION
-    //p = precip
     if (precip.includes('clear')) { p = 4 }
     else if (precip.includes('light')) { p = 2.5 }
     else if (precip.includes('moderate')) { p = 2 }
     else if (precip.includes('light') || precip.includes('moderate') && w > 2) { p = 1; w = 1 }
     else { p = 1 }
+    //TEMPERATURE
+    if (temp >= -50 && temp <= 40) { t = 1 }
+    else if (temp > 40 && temp < 64) { t = 2 }
+    else if (temp > 65 && temp < 84) { t = 3 }
+    else { t= 4 }
     //FUEL
     // if fuel >= 0 and fuel < 12:
     //     f = 1
@@ -271,14 +270,11 @@ export class AppComponent {
     //     s = 3
     // elif slope >= 31:
     //     s = 4
-    //w = w
-    //p = p
-    var afti = (2 * w) + h + (1.8 * p);
-    console.log("Input values -- Wind: " + wind + " Humidity: " + hum + " Precip: " + precip);
-    console.log("Risk Table Results -- Wind: " + w + " Humidity: " + h + " Precip: " + p);
+    var afti = (2 * w) + h + (1.8 * p) + (1.2 * t);
+    console.log("Input values -- Wind: " + wind + " Humidity: " + hum + " Precip: " + precip + " Temp: " + temp);
+    console.log("Risk Table Results -- Wind: " + w + " Humidity: " + h + " Precip: " + p + " Temp: " + t);
     console.log("AFTI Score: ", afti);
     return afti;
   }
-
 
 }

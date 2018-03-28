@@ -13,7 +13,7 @@ export class WeatherService {
     }
 
     getWeatherForecast(lat: any, lng: any): Observable<any[]> {
-        console.log('forecast for coords: ', lat, lng);
+        //console.log('forecast for coords: ', lat, lng);
         //'forecast?q=' + cityName + '&appid=' + environment.appId + '&units=' + environment.units
         //http://api.openweathermap.org/data/2.5/forecast?lat=35.0845611&lon=137.1706404&units=metric&appid=0b9ae90c37b492b7da3c843ff795f217
         return this.http.get(environment.baseUrl + '/forecast?lat=' + lat + '&lon=' + lng + '&units=imperial&appid=0b9ae90c37b492b7da3c843ff795f217')

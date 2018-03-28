@@ -14,7 +14,7 @@ export class ElevationService {
     }
 
     getElevation(lat: any, lng: any): Observable<any[]> {
-        console.log('elevation for coords: ', lat, lng);
+        //console.log('elevation for coords: ', lat, lng);
 
         var options = new RequestOptions({
             headers: new Headers({
