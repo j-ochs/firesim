@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-
-gwind = 22
-ghum = 15
-gprecip = 43
-gfuel = 22
-gslope = 13
-
-def main():
-    calculateAfti(gwind, ghum, gprecip, gfuel, gslope)
-
 def calculateAfti(wind, hum, precip, fuel, slope):
     #WIND
     if wind >= 0 and wind < 6:
@@ -32,13 +21,13 @@ def calculateAfti(wind, hum, precip, fuel, slope):
     p = precip
     #FUEL
     if fuel >= 0 and fuel < 12:
-        w = 1
+        f = 1
     elif fuel >= 13 and fuel < 25:
-        w = 2
+        f = 2
     elif fuel >= 26 and fuel < 38:
-        w = 3
+        f = 3
     elif fuel >= 39:
-        w = 4
+        f = 4
     #SLOPE
     if slope >= 0 and slope < 5:
         s = 1
@@ -48,9 +37,23 @@ def calculateAfti(wind, hum, precip, fuel, slope):
         s = 3
     elif slope >= 31:
         s = 4
-    print("Wind: {}  Humidity: {}  Precip: {}  Fuel: {}  Slope: {}".format(w,h,p,f,s)
+    w = w
+    p = p
+    f = f
+    afti = (2*w)+h+(1.6*p)+(1.2*f)+s
+    print("Risk Table Results -- Wind: {}  Humidity: {}  Precip: {}  Fuel: {}  Slope: {}".format(w,h,p,f,s))
+    print("AFTI Score: {}".format(afti))
+    #return (w*2 + h + p*1.6 + f * 1.2 + s)
 
+def main():
+    #global gwind, ghum, gprecip, gfuel, gslope
+    gwind = 44
+    ghum = 15
+    gprecip = 2
+    gfuel = 22
+    gslope = 22
+    print("Input values -- Wind: {}  Humidity: {}  Precip: {}  Fuel: {}  Slope: {}".format(gwind,ghum,gprecip,gfuel,gslope))
+    calculateAfti(gwind, ghum, gprecip, gfuel, gslope)
 
-
-if __name__ == "__main__"
-    main()
+if __name__ == "__main__":
+	main()

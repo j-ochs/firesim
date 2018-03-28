@@ -16,6 +16,6 @@ export const environment = {
 export const elevationEnv = {
   production: false,
   appId: 'AIzaSyAzAy0Bp_D47hzpkNjFAY0szLh8I-f5ZTE',
-  baseUrl: 'http://maps.googleapis.com/maps/api/elevation/', 
+  baseUrl: 'https://maps.googleapis.com/maps/api/elevation/', 
   units:'metric'
 }

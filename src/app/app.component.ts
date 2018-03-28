@@ -23,16 +23,16 @@ export class AppComponent {
   cityName: string;
 
   // bbox: any = [-124,32,-110,49];
-  bbox: any = [0,0,0,0];
-  cellSide = 2;
-  units = {units: 'miles'};
+  bbox: any = [0, 0, 0, 0];
+  cellSide = .5;
+  units = { units: 'miles' };
   hexgrid = T.hexGrid(this.bbox, this.cellSide);
 
   constructor(private zone: NgZone, private http: Http, private _weatherService: WeatherService,
-     private _elevationService: ElevationService) {
+    private _elevationService: ElevationService) {
 
   }
-  
+
 
 
 
@@ -142,22 +142,24 @@ export class AppComponent {
     // for (var i=0; i<this.hexgrid.features.length; i++) {
     //   var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
     // }
-    
+
     map.on('click', (e: any) => {
       //this.getForecastByCoords(e.latlng.lat, e.latlng.lng);
       this._weatherService.getWeatherForecast(e.latlng.lat, e.latlng.lng)
-      .subscribe(res => {
-        this.weatherForecastData = res;
-        console.log('res: ', this.weatherForecastData);
+        .subscribe(res => {
+          this.weatherForecastData = res;
+          console.log('res: ', this.weatherForecastData);
+          var afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
+            this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description)
 
-        var popup = L.popup()
-          .setLatLng(e.latlng)
-          .setContent(e.latlng.toString() + '<br> Forecast for ' + this.weatherForecastData.city.name.toString() + ' on ' + this.weatherForecastData.list[0].dt_txt + ': '
-        + this.weatherForecastData.list[0].weather[0].description.toString() + '<br>' + 'Wind: ' + this.weatherForecastData.list[0].wind.speed
-        + '  ' + this.weatherForecastData.list[0].wind.deg + '<br> Humidity: ' + this.weatherForecastData.list[0].main.humidity)
-          .openOn(map);
-      },
-      error => this.errorMessage = <any>error);
+          var popup = L.popup()
+            .setLatLng(e.latlng)
+            .setContent('Forecast for ' + this.weatherForecastData.city.name + ' on ' + this.weatherForecastData.list[0].dt_txt + ': '
+            + this.weatherForecastData.list[0].weather[0].description + '<br>' + 'Wind speed: ' + this.weatherForecastData.list[0].wind.speed
+            + ' | degrees ' + this.weatherForecastData.list[0].wind.deg + ' | Humidity: ' + this.weatherForecastData.list[0].main.humidity + '<br> <b>AFTI Score: ' + afti + '</b>')
+            .openOn(map);
+        },
+        error => this.errorMessage = <any>error);
 
       console.log('ELEV: ', this.getElevationByCoords(e.latlng.lat, e.latlng.lng));
 
@@ -165,43 +167,42 @@ export class AppComponent {
         this.showGrid(map, e.latlng);
         this.gridOnMap = true;
       }
-
     });
     
+
+  }
+
+
+  getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+    var R = 6371; // Radius of the earth in km
+    var dLat = this.deg2rad(lat2-lat1);  // deg2rad below
+    var dLon = this.deg2rad(lon2-lon1); 
+    var a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+      ; 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c; // Distance in km
+    return d;
+  }
+  
+  deg2rad(deg) {
+    return deg * (Math.PI/180)
   }
 
 
   showGrid(map: L.Map, coords: any) {
-
+    console.log('showGrid called ');
     //bbox: any = [-124,32,-110,49];
-    this.bbox = [coords.lng-1.5,coords.lat-1,coords.lng+1.5,coords.lat+1];
-    // var cellSide = 5;
-    // var units = {units: 'miles'};
-    
-    console.log('showGrid called ', coords, this.bbox, this.hexgrid);
-
-    if (this.gridOnMap) {
-      console.log('removing existing hexgrid')
-      for (var i=0; i<this.hexgrid.features.length; i++) {
-        var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
-        //map.removeLayer(L.geoJSON(this.hexgrid.features[i]));
-        map.removeLayer(geojson)
-        L.geoJSON().clearLayers();
-      }
-      
-      
-      console.log('REMOVED ', geojson)
-      this.gridOnMap = false;
+    this.bbox = [coords.lng - .42, coords.lat - .3, coords.lng + .42, coords.lat + .3];
+    console.log('drawing new hexgrid')
+    this.hexgrid = T.hexGrid(this.bbox, this.cellSide);
+    for (var i = 0; i < this.hexgrid.features.length; i++) {
+      var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
+      //map.removeLayer(geojson)
     }
-    else if (!this.gridOnMap) {
-      console.log('drawing new hexgrid')
-      this.hexgrid = T.hexGrid(this.bbox, this.cellSide);
-      for (var i=0; i<this.hexgrid.features.length; i++) {
-        var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
-        map.removeLayer(geojson)
-      } 
-        this.gridOnMap = true;
-    }
+    this.gridOnMap = true;
   }
 
 
@@ -217,7 +218,7 @@ export class AppComponent {
         console.log('res: ', this.weatherForecastData);
       },
       error => this.errorMessage = <any>error);
-      return this.weatherForecastData;
+    return this.weatherForecastData;
   }
 
   getElevationByCoords(lat: any, lng: any) {
@@ -229,7 +230,55 @@ export class AppComponent {
         console.log('ELEVATION res: ', this.elevationData);
       },
       error => this.errorMessage = <any>error);
-      return this.elevationData;
+    return this.elevationData;
   }
+
+
+  calculateAfti(wind: number, hum: number, precip: String) {
+    //WIND
+    var w, h, p;
+    if (wind >= 0 && wind < 6) { w = 1 }
+    else if (wind >= 6 && wind < 12) { w = 2 }
+    else if (wind >= 12 && wind < 19) { w = 3 }
+    else { w = 4 }
+    //HUMIDITY
+    if (hum >= 76 && hum < 101) { h = 1 }
+    else if (hum <= 75 && hum > 51) { h = 2 }
+    else if (hum <= 50 && hum > 26) { h = 3 }
+    else { h = 4 }
+    //PRECIPITATION
+    //p = precip
+    if (precip.includes('clear')) { p = 4 }
+    else if (precip.includes('light')) { p = 2.5 }
+    else if (precip.includes('moderate')) { p = 2 }
+    else if (precip.includes('light') || precip.includes('moderate') && w > 2) { p = 1; w = 1 }
+    else { p = 1 }
+    //FUEL
+    // if fuel >= 0 and fuel < 12:
+    //     f = 1
+    // elif fuel >= 13 and fuel < 25:
+    //     f = 2
+    // elif fuel >= 26 and fuel < 38:
+    //     f = 3
+    // elif fuel >= 39:
+    //     f = 4
+    // //SLOPE
+    // if slope >= 0 and slope < 5:
+    //     s = 1
+    // elif slope >= 6 and slope < 15:
+    //     s = 2
+    // elif slope >= 16 and slope < 30:
+    //     s = 3
+    // elif slope >= 31:
+    //     s = 4
+    //w = w
+    //p = p
+    var afti = (2 * w) + h + (1.8 * p);
+    console.log("Input values -- Wind: " + wind + " Humidity: " + hum + " Precip: " + precip);
+    console.log("Risk Table Results -- Wind: " + w + " Humidity: " + h + " Precip: " + p);
+    console.log("AFTI Score: ", afti);
+    return afti;
+  }
+
 
 }
