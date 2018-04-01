@@ -19,6 +19,7 @@ export class AppComponent {
   errorMessage: string;
   weatherForecastData: any;
   elevationData: any;
+  staticPixel: any;
   disabledForecastButton: boolean = true;
   cityName: string;
 
@@ -87,14 +88,14 @@ export class AppComponent {
   });
 
   // Marker for Westmont College
-  westmont = L.marker([34.4488, -119.6610], {
-    icon: L.icon({
-      iconSize: [25, 41],
-      iconAnchor: [13, 41],
-      iconUrl: 'leaflet/marker-icon.png',
-      shadowUrl: 'leaflet/marker-shadow.png'
-    })
-  });
+  // westmont = L.marker([34.4488, -119.6610], {
+  //   icon: L.icon({
+  //     iconSize: [25, 41],
+  //     iconAnchor: [13, 41],
+  //     iconUrl: 'leaflet/marker-icon.png',
+  //     shadowUrl: 'leaflet/marker-shadow.png'
+  //   })
+  // });
 
   // Layers control object with our two base layers and the three overlay layers
   layersControl = {
@@ -105,7 +106,7 @@ export class AppComponent {
       'B&W Contrast Map': this.Stamen_Toner
     },
     overlays: {
-      'Westmont College': this.westmont,
+      //'Westmont College': this.westmont,
       'Wind': this.openWeatherMap_Wind,
       'Clouds': this.openWeatherMap_Clouds,
       'Precipitation': this.openWeatherMap_Precipitation,
@@ -126,7 +127,7 @@ export class AppComponent {
         subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
         detectRetina: true
       }),
-      this.googleMaps, this.westmont, this.drawnItems
+      this.googleMaps, this.drawnItems
     ],
     zoom: 7,
     center: L.latLng([34.4488, -119.6610]),
@@ -162,6 +163,8 @@ export class AppComponent {
         },
         error => this.errorMessage = <any>error);
       console.log('ELEV: ', this.getElevationByCoords(e.latlng.lat, e.latlng.lng));
+      console.log('STATIC: ', this.getStaticPixelByCoords(e.latlng.lat, e.latlng.lng, map.getZoom()));
+      console.log('MAPZOOM: ', map.getZoom());
 
       if (!this.gridOnMap) {
         this.showGrid(map, e.latlng);
@@ -226,6 +229,16 @@ export class AppComponent {
       },
       error => this.errorMessage = <any>error);
     return this.elevationData;
+  }
+
+  getStaticPixelByCoords(lat: any, lng: any, mapzoom: number) {
+    this._elevationService.getStaticPixel(lat, lng, mapzoom)
+      .subscribe(res => {
+        this.staticPixel = res;
+        console.log('STATIC PIXEL res: ', this.staticPixel.type);
+      },
+      error => this.errorMessage = <any>error);
+    return this.staticPixel;
   }
 
 
