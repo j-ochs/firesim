@@ -168,7 +168,7 @@ pointStyle = {
 crimeGridStyle = {
   style: function style(feature) {
     return {
-      fillColor: this.getColor(feature.properties.z),
+      fillColor: this.getColor(feature.properties.count),
       weight: 2,
       opacity: 1,
       color: 'white',
@@ -189,9 +189,9 @@ getColor(d: any) {
                 '#FFEDA0';
 }
 
-style(feature) {
+mystyle(feature: any) {
   return {
-    fillColor: this.getColor(feature.properties.z),
+    fillColor: this.getColor(feature.properties.count),
     weight: 2,
     opacity: 1,
     color: 'white',
@@ -208,26 +208,62 @@ highlightHex(e) {
 
 resetHexHighlight(e) {
   var layer = e.target;
-  var hexStyleDefault = this.style(layer.feature);
+  var hexStyleDefault = this.mystyle(layer.feature);
   layer.setStyle(hexStyleDefault);
 }
 
 onEachHex(feature, layer) {
-  layer.on({
-    mouseover: this.highlightHex,
-    mouseout: this.resetHexHighlight
+  console.log('ON EACH HEX: ', feature);
+
+  var color = "";
+  if (feature.properties.count > 50) { color = '#800026' } else
+  if (feature.properties.count > 30) { color = '#BD0026' } else
+  if (feature.properties.count > 25) { color = '#E31A1C' } else
+  if (feature.properties.count > 20) { color = '#FC4E2A' } else
+  if (feature.properties.count > 15) { color = '#FD8D3C' } else
+  if (feature.properties.count > 10) { color = '#FEB24C' } else
+  if (feature.properties.count > 5) { color = '#FED976' } else { color = '#FFEDA0'};
+  // layer.on({
+  //   mouseover: this.highlightHex,
+  //   mouseout: this.resetHexHighlight
+  // });
+  layer.on('mouseover', (e: any) => {
+    var layer = e.target;
+    layer.setStyle(this.hexStyleHighlight);
   });
-  var hexStyleDefault = this.style(layer.feature);
+  layer.on('mouseout', (e: any) => {
+    var layer = e.target;
+    var hexStyleDefault = {
+      fillColor: color,
+      weight: 2,
+      opacity: 1,
+      color: 'white',
+      dashArray: '3',
+      fillOpacity: 0.4
+    }
+    //this.mystyle(layer.feature);
+    layer.setStyle(hexStyleDefault);
+  });
+  //var hexStyleDefault = this.mystyle(layer.feature);
+  var hexStyleDefault = {
+    fillColor: color,
+    weight: 2,
+    opacity: 1,
+    color: 'white',
+    dashArray: '3',
+    fillOpacity: 0.4
+  };
+  
   layer.setStyle(hexStyleDefault);
   //for the sake of grammar
-  if (feature.properties.pt_count == 1) {
+  if (feature.properties.count == 1) {
     var be_verb = "There is";
     var point_s = "point";
   } else {
     var be_verb = "There are";
     var point_s = "points";
   }
-  layer.bindPopup(be_verb + ' <b>' + feature.properties.pt_count + '</b> ' + point_s + ' in this cell.');
+  layer.bindPopup(be_verb + ' <b>' + feature.properties.count + '</b> ' + point_s + ' in this cell.');
 }
 
 normish(mean, range) {
@@ -281,22 +317,15 @@ onMapReady(map: L.Map) {
   L.control.scale({ metric: false }).addTo(map);
   L.control.coordinates({ position: "bottomleft" }).addTo(map);
 
-
     //create hex grid and count points within each cell
-    var hexcounts = T.collect(this.hexgrid, this.dots, 'd', 'd');
-    L.geoJSON(hexcounts, { onEachFeature: this.onEachHex }).addTo(map);
-
-  //console.log('hex: ', this.hexgrid);
-  // for (var i=0; i<this.hexgrid.features.length; i++) {
-  //   var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
-  // }
+    //var hexcounts = T.collect(this.hexgrid, this.dots, 'd', 'd');
+    //L.geoJSON(hexcounts, { onEachFeature: this.onEachHex }).addTo(map);
 
   map.on('click', (e: any) => {
     this.getForecastByCoords(e.latlng.lat, e.latlng.lng);
     this._weatherService.getWeatherForecast(e.latlng.lat, e.latlng.lng)
       .subscribe(res => {
         this.weatherForecastData = res;
-        console.log('res: ', this.weatherForecastData);
         this.afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
           this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
           this.weatherForecastData.list[0].main.temp);
@@ -347,30 +376,33 @@ showGrid(map: L.Map, coords: any) {
   //bbox: any = [-124,32,-110,49];
   this.bbox = [coords.lng - .2, coords.lat - .14, coords.lng + .2, coords.lat + .14];
   this.hexgrid = T.hexGrid(this.bbox, this.cellSide);
-  for (var i = 0; i < this.hexgrid.features.length; i++) {
-    this.hexgrid.features[i].properties.count = 0;
-    var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
-    //console.log('HEX',i, this.hexgrid.features[i])
-    //map.removeLayer(geojson)
+
+
+  for (var i=0; i<Object.keys(this.hexgrid.features).length; i++) {
+
+    var randNum = Math.floor(Math.random() * (50 - 1) + 1);
+    this.hexgrid.features[i].properties['count'] = randNum;
+    //var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
+    var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.onEachHex }).addTo(map);
   }
+
   console.log("FEATURES: ", this.hexgrid.features);
-  this.gridOnMap = true;
-  console.log(Object.keys(this.hexgrid.features).length);
+
   // -- START OF COLORIZATION ATTEMPT --
-  var points = T.randomPoint(100, { bbox: [coords.lng - .14, coords.lat - .2, coords.lng + .14, coords.lat + .2] });
+  //var points = T.randomPoint(100, { bbox: [coords.lng - .14, coords.lat - .2, coords.lng + .14, coords.lat + .2] });
 
   // create a "z" value for each point up to 50
-  points.features.forEach(function (d) {
-    d.properties.z = ~~(Math.random() * 50);
-  });
+  // points.features.forEach(function (d) {
+  //   d.properties.z = ~~(Math.random() * 50);
+  // });
 
   // show the points on the map
   //var pts = L.geoJSON(points, this.pointStyle).addTo(map);
-  var count = T.collect(this.hexgrid, points, "z", "z")
+  //var count = T.collect(this.hexgrid, points, "z", "z")
   //for (var i=0; i<count.features.length; i++) {
   //var pts = L.geoJSON(points.features[i], this.pointStyle[i]).addTo(map);
   //console.log('ASDFASDFASDF', points,count);
-  //L.geoJSON(count.features[i], this.crimeGridStyle).addTo(map);
+  //L.geoJSON(this.hexgrid.features[i], this.crimeGridStyle).addTo(map);
   //}
 
 }
