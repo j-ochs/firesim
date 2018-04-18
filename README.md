@@ -3,6 +3,8 @@
 Firesim is a predictive wildfire simulator. This project is currently under development.
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.2.1.
 
+Check out my [Research Symposium Poster](https://github.com/j-ochs/firesim/blob/master/src/assets/capstone_poster.pdf) for a thorough conceptual overview.
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
