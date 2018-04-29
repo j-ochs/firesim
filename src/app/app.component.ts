@@ -201,40 +201,43 @@ export class AppComponent {
 
   myColor(feature): string {
     var color = "";
-    if (feature.properties.count > 50) { color = '#800026' } else
-      if (feature.properties.count > 30) { color = '#BD0026' } else
-        if (feature.properties.count > 25) { color = '#E31A1C' } else
-          if (feature.properties.count > 20) { color = '#FC4E2A' } else
-            if (feature.properties.count > 15) { color = '#FD8D3C' } else
-              if (feature.properties.count > 10) { color = '#FEB24C' } else
-                if (feature.properties.count > 5) { color = '#FED976' } else { color = '#FFEDA0' };
-                return color;
+    if (feature.properties.count > 60) { color = '#42f459' } else
+      if (feature.properties.count > 50) { color = '#800026' } else
+        if (feature.properties.count > 30) { color = '#BD0026' } else
+          if (feature.properties.count > 25) { color = '#E31A1C' } else
+            if (feature.properties.count > 20) { color = '#FC4E2A' } else
+              if (feature.properties.count > 15) { color = '#FD8D3C' } else
+                if (feature.properties.count > 10) { color = '#FEB24C' } else
+                  if (feature.properties.count > 5) { color = '#FED976' } else { color = '#FFEDA0' };
+    return color;
   }
-
 
   onEachHex(feature, layer) {
     //console.log('ON EACH HEX: ', feature);
 
     var color = "";
-    if (feature.properties.count > 50) { color = '#800026' } else
-      if (feature.properties.count > 30) { color = '#BD0026' } else
-        if (feature.properties.count > 25) { color = '#E31A1C' } else
-          if (feature.properties.count > 20) { color = '#FC4E2A' } else
-            if (feature.properties.count > 15) { color = '#FD8D3C' } else
-              if (feature.properties.count > 10) { color = '#FEB24C' } else
-                if (feature.properties.count > 5) { color = '#FED976' } else { color = '#FFEDA0' };
+    if (feature.properties.count > 60) { color = '#42f459' } else
+      if (feature.properties.count > 26) { color = '#800026' } else
+        if (feature.properties.count > 22) { color = '#BD0026' } else
+          if (feature.properties.count > 19) { color = '#E31A1C' } else
+            if (feature.properties.count > 16) { color = '#FC4E2A' } else
+              if (feature.properties.count > 14.5) { color = '#FD8D3C' } else
+                if (feature.properties.count > 13) { color = '#FEB24C' } else
+                  if (feature.properties.count > 11) { color = '#FED976' } else { color = '#FFEDA0' };
 
     var hexStyleDefault = {
       fillColor: color,
       weight: 0.5,
       opacity: 1,
-      color: '#888888'
+      color: '#888888',
+      fillOpacity: 0.5
     }
     var hexStyleHighlight = {
       fillColor: color,
       color: "black",
       weight: 2,
-      opacity: 1
+      opacity: 1,
+      fillOpacity: 0.5
     }
 
     layer.on('mouseover', (e: any) => {
@@ -248,15 +251,6 @@ export class AppComponent {
     });
 
     layer.setStyle(hexStyleDefault);
-    //for the sake of grammar
-    if (feature.properties.count == 1) {
-      var be_verb = "There is";
-      var point_s = "point";
-    } else {
-      var be_verb = "There are";
-      var point_s = "points";
-    }
-    layer.bindPopup(be_verb + ' <b>' + feature.properties.count + '</b> ' + point_s + ' in this cell.');
   }
 
 
@@ -266,18 +260,9 @@ export class AppComponent {
     L.control.scale({ metric: false }).addTo(map);
     L.control.coordinates({ position: "bottomleft" }).addTo(map);
 
-    //create hex grid and count points within each cell
-    //var hexcounts = T.collect(this.hexgrid, this.dots, 'd', 'd');
-    //L.geoJSON(hexcounts, { onEachFeature: this.onEachHex }).addTo(map);
-
     map.on('click', (e: any) => {
-
       //this.bbox = [e.latlng.lng - .2, e.latlng.lat - .14, e.latlng.lng + .2, e.latlng.lat + .14];
-      var pt = T.point([e.latlng.lng, e.latlng.lat]);
-      var bbpoly = T.bboxPolygon(this.bbox);
-      if (T.booleanWithin(pt, bbpoly)) { console.log('WITHIN GRID') }
-      if (!T.booleanWithin(pt, bbpoly)) { console.log('NOT IN GRID') }
-      //console.log('HAHAHA: ', this.getForecastByCoords(e.latlng.lat, e.latlng.lng));
+
       this._weatherService.getWeatherForecast(e.latlng.lat, e.latlng.lng)
         .subscribe(res => {
           this.weatherForecastData = res;
@@ -286,7 +271,8 @@ export class AppComponent {
             this.weatherForecastData.list[0].main.temp);
           var locAfti = {
             coords: e.latlng,
-            afti: this.afti
+            afti: this.afti,
+            index: 0
           };
 
           this.allAftiScores.push(locAfti);
@@ -305,6 +291,37 @@ export class AppComponent {
       console.log('ELEV: ', this.getElevationByCoords(e.latlng.lat, e.latlng.lng));
       //console.log('STATIC: ', this.getStaticPixelByCoords(e.latlng.lat, e.latlng.lng, map.getZoom()));
 
+      var pt = T.point([e.latlng.lng, e.latlng.lat]);
+      var bbpoly = T.bboxPolygon(this.bbox);
+
+      if (T.booleanWithin(pt, bbpoly)) {
+        console.log('WITHIN GRID');
+
+        for (var i = 0; i < Object.keys(this.hexgrid.features).length; i++) {
+          this.hexgrid.features[i].properties['index'] = i;
+          //this.hexgrid.features[i].properties['count'] = this.getAftiData(e.latlng);
+          
+          //console.log('FEAT: ', this.hexgrid.features[i]);
+
+          if (T.booleanPointInPolygon(pt, this.hexgrid.features[i])) {
+            console.log('I: ', i);
+            this.hexgrid.features[i].properties['count'] = this.afti;
+            var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.onEachHex }).addTo(map);
+            if (T.intersect(this.hexgrid.features[i], this.hexgrid.features[i+1])) {
+              var newPoly = T.union(this.hexgrid.features[i], this.hexgrid.features[i+1]);
+              var un = L.geoJSON(newPoly).addTo(map);
+            }
+          }
+          //var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.onEachHex }).addTo(map);
+        }
+      }
+      if (!T.booleanWithin(pt, bbpoly)) { console.log('NOT IN GRID') }
+
+      //BEGIN RANDOM HEXGRID COLORIZATION
+      // for (var i = 0; i < Object.keys(this.hexgrid.features).length; i++) {
+      //   var randNum = Math.floor(Math.random() * (50 - 1) + 1);
+      //   this.hexgrid.features[i].properties['count'] = randNum;
+      // }
 
       if (!this.gridOnMap) {
         this.showGrid(map, e.latlng);
@@ -312,44 +329,29 @@ export class AppComponent {
       }
     });
 
-  }
+  }//END OF onMapReady
 
   getAftiData(coords: any) {
     console.log('GETTING AFTI DATA FOR ', coords);
 
     this._weatherService.getWeatherForecast(coords.lat, coords.lng)
-    .subscribe(res => {
-      this.weatherForecastData = res;
-      this.afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
-        this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
-        this.weatherForecastData.list[0].main.temp);
-      var locAfti = {
-        coords: coords,
-        afti: this.afti
-      };
+      .subscribe(res => {
+        this.weatherForecastData = res;
+        this.afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
+          this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
+          this.weatherForecastData.list[0].main.temp);
+        var locAfti = {
+          coords: coords,
+          afti: this.afti,
+          index: 0
+        };
 
-      this.allAftiScores.push(locAfti);
-      console.log('ALL AFTI: ', this.allAftiScores);
-    });
+        this.allAftiScores.push(locAfti);
+        console.log('ALL AFTI: ', this.allAftiScores);
+      });
+      return this.afti
   }
 
-
-  getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = this.deg2rad(lat2 - lat1);  // deg2rad below
-    var dLon = this.deg2rad(lon2 - lon1);
-    var a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2)
-      ;
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c; // Distance in km
-    return d;
-  }
-  deg2rad(deg) {
-    return deg * (Math.PI / 180)
-  }
 
 
   showGrid(map: L.Map, coords: any) {
@@ -364,6 +366,7 @@ export class AppComponent {
       var randNum = Math.floor(Math.random() * (50 - 1) + 1);
       this.hexgrid.features[i].properties['count'] = randNum;
       //var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
+      this.hexgrid.features[1].properties['count'] = 65;
       var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.onEachHex }).addTo(map);
     }
   }
@@ -381,7 +384,6 @@ export class AppComponent {
       error => this.errorMessage = <any>error);
     return this.weatherForecastData;
   }
-
   getElevationByCoords(lat: any, lng: any) {
     this._elevationService.getElevation(lat, lng)
       .subscribe(res => {
@@ -390,7 +392,6 @@ export class AppComponent {
       error => this.errorMessage = <any>error);
     return this.elevationData;
   }
-
   getStaticPixelByCoords(lat: any, lng: any, mapzoom: number) {
     this._elevationService.getStaticPixel(lat, lng, mapzoom)
       .subscribe(res => {
