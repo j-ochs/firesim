@@ -31,13 +31,13 @@ export class AppComponent {
   // bbox: any = [-124,32,-110,49];
 
   bbox: any = [-118.7, 33.7, -117.8, 34.4];
-  cellSide: number = .5;
+  cellSide: number = 1;
   units = { units: 'miles' };
   hexgrid = T.hexGrid(this.bbox, this.cellSide);
 
   //parameters for hex grid
   //this.bbox = [-118.7,33.7,-117.8,34.4];
-  cellWidth: number = 2;
+  //cellWidth: number = 2;
   //units = 'miles';
 
 
@@ -45,8 +45,6 @@ export class AppComponent {
     private _elevationService: ElevationService) {
 
   }
-
-
 
 
   // Define our base layers so we can reference them multiple times
@@ -99,15 +97,8 @@ export class AppComponent {
     showLegend: true
   });
 
-  // Marker for Westmont College
-  // westmont = L.marker([34.4488, -119.6610], {
-  //   icon: L.icon({
-  //     iconSize: [25, 41],
-  //     iconAnchor: [13, 41],
-  //     iconUrl: 'leaflet/marker-icon.png',
-  //     shadowUrl: 'leaflet/marker-shadow.png'
-  //   })
-  // });
+
+  
 
   // Layers control object with our two base layers and the three overlay layers
   layersControl = {
@@ -117,15 +108,18 @@ export class AppComponent {
       'Open Topo Map': this.openTopoMap,
       'B&W Contrast Map': this.Stamen_Toner
     },
+    
     overlays: {
-      //'Westmont College': this.westmont,
       'Wind': this.openWeatherMap_Wind,
       'Clouds': this.openWeatherMap_Clouds,
       'Precipitation': this.openWeatherMap_Precipitation,
-      'Temperature': this.openWeatherMap_Temperature,
-      //'grids': this.hexgrid.features
+      'Temperature': this.openWeatherMap_Temperature
     }
+
   };
+  
+  
+  
 
 
   //map initialization variables
@@ -142,88 +136,27 @@ export class AppComponent {
     center: L.latLng([this.centerlat, this.centerlng]),
   };
 
-  pointStyle = {
-    pointToLayer: function (feature, latlng) {
-      return L.circle(latlng);
-    },
-    style: {
-      "color": "#ff7800",
-      "weight": 5,
-      "opacity": 0.65
-    }
-  }
-  crimeGridStyle = {
-    style: function style(feature) {
-      return {
-        fillColor: this.getColor(feature.properties.count),
-        weight: 2,
-        opacity: 1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.7
-      };
-    }
-  }
-
-  getColor(d: any) {
-    return d > 50 ? '#800026' :
-      d > 30 ? '#BD0026' :
-        d > 25 ? '#E31A1C' :
-          d > 20 ? '#FC4E2A' :
-            d > 15 ? '#FD8D3C' :
-              d > 10 ? '#FEB24C' :
-                d > 5 ? '#FED976' :
-                  '#FFEDA0';
-  }
-
-  mystyle(feature: any) {
-    return {
-      fillColor: this.getColor(feature.properties.count),
-      weight: 2,
-      opacity: 1,
-      color: 'white',
-      dashArray: '3',
-      fillOpacity: 0.7
-    };
-  }
-
-  //attach styles and popups to the hex layer
-  // highlightHex(e) {
-  //   var layer = e.target;
-  //   layer.setStyle(this.hexStyleHighlight);
-  // }
-
-  // resetHexHighlight(e) {
-  //   var layer = e.target;
-  //   var hexStyleDefault = this.mystyle(layer.feature);
-  //   layer.setStyle(hexStyleDefault);
-  // }
-
-  myColor(feature): string {
-    var color = "";
-    if (feature.properties.count > 60) { color = '#42f459' } else
-      if (feature.properties.count > 50) { color = '#800026' } else
-        if (feature.properties.count > 30) { color = '#BD0026' } else
-          if (feature.properties.count > 25) { color = '#E31A1C' } else
-            if (feature.properties.count > 20) { color = '#FC4E2A' } else
-              if (feature.properties.count > 15) { color = '#FD8D3C' } else
-                if (feature.properties.count > 10) { color = '#FEB24C' } else
-                  if (feature.properties.count > 5) { color = '#FED976' } else { color = '#FFEDA0' };
-    return color;
-  }
 
   onEachHex(feature, layer) {
-    //console.log('ON EACH HEX: ', feature);
 
     var color = "";
-    if (feature.properties.count > 60) { color = '#42f459' } else
-      if (feature.properties.count > 26) { color = '#800026' } else
-        if (feature.properties.count > 22) { color = '#BD0026' } else
-          if (feature.properties.count > 19) { color = '#E31A1C' } else
-            if (feature.properties.count > 16) { color = '#FC4E2A' } else
-              if (feature.properties.count > 14.5) { color = '#FD8D3C' } else
-                if (feature.properties.count > 13) { color = '#FEB24C' } else
-                  if (feature.properties.count > 11) { color = '#FED976' } else { color = '#FFEDA0' };
+    // if (feature.properties.afti > 60) { color = '#42f459' } else
+    //   if (feature.properties.afti > 26) { color = '#800026' } else
+    //     if (feature.properties.afti > 22) { color = '#BD0026' } else
+    //       if (feature.properties.afti > 19) { color = '#E31A1C' } else
+    //         if (feature.properties.afti > 16) { color = '#FC4E2A' } else
+    //           if (feature.properties.afti > 14.5) { color = '#FD8D3C' } else
+    //             if (feature.properties.afti > 13) { color = '#FEB24C' } else
+    //               if (feature.properties.afti > 11) { color = '#FED976' } else { color = '#42f459' };
+    //assign appropriate color to grid by afti score
+    if (feature.properties.afti > 60) { color = '#42f459' } else
+      if (feature.properties.afti > 50) { color = '#800026' } else
+        if (feature.properties.afti > 30) { color = '#BD0026' } else
+          if (feature.properties.afti > 25) { color = '#E31A1C' } else
+            if (feature.properties.afti > 20) { color = '#FC4E2A' } else
+              if (feature.properties.afti > 15) { color = '#FD8D3C' } else
+                if (feature.properties.afti > 10) { color = '#FEB24C' } else
+                  if (feature.properties.afti > 5) { color = '#FED976' } else { color = '#FFEDA0' };
 
     var hexStyleDefault = {
       fillColor: color,
@@ -243,14 +176,27 @@ export class AppComponent {
     layer.on('mouseover', (e: any) => {
       var layer = e.target;
       layer.setStyle(hexStyleHighlight);
-      //this.getAftiData(e.latlng);
     });
     layer.on('mouseout', (e: any) => {
       var layer = e.target;
       layer.setStyle(hexStyleDefault);
     });
-
+    // layer.on('click', (e: any) => {
+    //   layer.bindPopup('AFTI Score: ' + feature.properties.afti);
+    //   console.log('feature: ', feature)
+    // });
     layer.setStyle(hexStyleDefault);
+  }
+
+  iterateOverHex(feature, layer) {
+    var popupcontent = [];
+    for (var afti in feature.properties) {
+      popupcontent.push(afti += ": " + feature.properties[afti]);
+    }
+    layer.bindPopup(popupcontent.join("<br />"));
+    //if(feature.properties.properties.afti > 30) {
+    console.log('HI there: ', feature);
+    //}
   }
 
 
@@ -258,70 +204,60 @@ export class AppComponent {
 
   onMapReady(map: L.Map) {
     L.control.scale({ metric: false }).addTo(map);
-    L.control.coordinates({ position: "bottomleft" }).addTo(map);
+    L.control.coordinates({ position: "bottomleft" }).addTo(map);    
 
     map.on('click', (e: any) => {
-      //this.bbox = [e.latlng.lng - .2, e.latlng.lat - .14, e.latlng.lng + .2, e.latlng.lat + .14];
 
-      this._weatherService.getWeatherForecast(e.latlng.lat, e.latlng.lng)
-        .subscribe(res => {
-          this.weatherForecastData = res;
-          this.afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
-            this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
-            this.weatherForecastData.list[0].main.temp);
-          var locAfti = {
-            coords: e.latlng,
-            afti: this.afti,
-            index: 0
-          };
+      //AFTI DATA API CALLS -------------------------------------------------------------
+      // this.bbox = [e.latlng.lng - .2, e.latlng.lat - .14, e.latlng.lng + .2, e.latlng.lat + .14];
+      // this._weatherService.getWeatherForecast(e.latlng.lat, e.latlng.lng)
+      //   .subscribe(res => {
+      //     this.weatherForecastData = res;
+      //     this.afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
+      //       this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
+      //       this.weatherForecastData.list[0].main.temp);
+      //       this._elevationService.getOnWater(e.latlng.lat, e.latlng.lng)
+      //       .subscribe(res => {
+      //         this.onwater = res;
+      //         if (this.onwater.water) {
+      //           this.afti = 0
+      //           var popup = L.popup().setLatLng(e.latlng)
+      //           .setContent('No fire here, this is water!').openOn(map);
+      //         }
+      //         console.log('ONWATER res: ', this.onwater, this.afti);
+      //       },
+      //       error => this.errorMessage = <any>error);
 
-          this.allAftiScores.push(locAfti);
-          console.log('ALL AFTI: ', this.allAftiScores);
-
-          //console.log('ONWATER: ', this.getOnWaterByCoords(e.latlng.lat, e.latlng.lng));
-          var popup = L.popup()
-            .setLatLng(e.latlng)
-            .setContent(this.weatherForecastData.city.name + ' at ' + this.weatherForecastData.list[0].dt_txt + ': '
-            + this.weatherForecastData.list[0].weather[0].description + '<br>' + 'Wind speed: ' + this.weatherForecastData.list[0].wind.speed
-            + ' , ' + this.weatherForecastData.list[0].wind.deg + ' | Humidity: ' + this.weatherForecastData.list[0].main.humidity
-            + '<br> Temp: ' + this.weatherForecastData.list[0].main.temp + ' | Elev: ' + this.elevationData.results[0].elevation / .3048 + '<br><b> AFTI Score: ' + this.afti + '</b><br>')
-            .openOn(map);
-        },
-        error => this.errorMessage = <any>error);
-      console.log('ELEV: ', this.getElevationByCoords(e.latlng.lat, e.latlng.lng));
+      //     //console.log('ONWATER: ', this.getOnWaterByCoords(e.latlng.lat, e.latlng.lng));
+      //     //      WEATHER POPUP DATA -------------------------------------------------------------------
+      //     var popup = L.popup()
+      //       .setLatLng(e.latlng)
+      //       .setContent(this.weatherForecastData.city.name + ' at ' + this.weatherForecastData.list[0].dt_txt + ': '
+      //       + this.weatherForecastData.list[0].weather[0].description + '<br>' + 'Wind speed: ' + this.weatherForecastData.list[0].wind.speed
+      //       + ' , ' + this.weatherForecastData.list[0].wind.deg + ' | Humidity: ' + this.weatherForecastData.list[0].main.humidity
+      //       + '<br> Temp: ' + this.weatherForecastData.list[0].main.temp + ' | Elev: ' + this.elevationData.results[0].elevation / .3048 + '<br><b> AFTI Score: ' + this.afti + '</b><br>')
+      //       .openOn(map);
+      //   },
+      //   error => this.errorMessage = <any>error);
+      // console.log('ELEV: ', this.getElevationByCoords(e.latlng.lat, e.latlng.lng));
       //console.log('STATIC: ', this.getStaticPixelByCoords(e.latlng.lat, e.latlng.lng, map.getZoom()));
 
       var pt = T.point([e.latlng.lng, e.latlng.lat]);
       var bbpoly = T.bboxPolygon(this.bbox);
+      var unioned;
 
       if (T.booleanWithin(pt, bbpoly)) {
         console.log('WITHIN GRID');
 
-        for (var i = 0; i < Object.keys(this.hexgrid.features).length; i++) {
-          this.hexgrid.features[i].properties['index'] = i;
-          //this.hexgrid.features[i].properties['count'] = this.getAftiData(e.latlng);
-          
-          //console.log('FEAT: ', this.hexgrid.features[i]);
 
-          if (T.booleanPointInPolygon(pt, this.hexgrid.features[i])) {
-            console.log('I: ', i);
-            this.hexgrid.features[i].properties['count'] = this.afti;
-            var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.onEachHex }).addTo(map);
-            if (T.intersect(this.hexgrid.features[i], this.hexgrid.features[i+1])) {
-              var newPoly = T.union(this.hexgrid.features[i], this.hexgrid.features[i+1]);
-              var un = L.geoJSON(newPoly).addTo(map);
-            }
-          }
-          //var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.onEachHex }).addTo(map);
-        }
+
+
+        this.recursiveConsume(unioned, pt, e, map);
+
+        //WARNING - API OVERFLOW:
+        //this.hexgrid.features[i].properties['afti'] = this.getAftiData(this.hexgrid.features[i].geometry.coordinates[0][1]); 
+        //var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.onEachHex }).addTo(map);
       }
-      if (!T.booleanWithin(pt, bbpoly)) { console.log('NOT IN GRID') }
-
-      //BEGIN RANDOM HEXGRID COLORIZATION
-      // for (var i = 0; i < Object.keys(this.hexgrid.features).length; i++) {
-      //   var randNum = Math.floor(Math.random() * (50 - 1) + 1);
-      //   this.hexgrid.features[i].properties['count'] = randNum;
-      // }
 
       if (!this.gridOnMap) {
         this.showGrid(map, e.latlng);
@@ -331,45 +267,96 @@ export class AppComponent {
 
   }//END OF onMapReady
 
-  getAftiData(coords: any) {
+  getAftiData(coords: any) { //coords: [lng, lat]
     console.log('GETTING AFTI DATA FOR ', coords);
+    var loc;
 
-    this._weatherService.getWeatherForecast(coords.lat, coords.lng)
+    this._weatherService.getWeatherForecast(coords[1], coords[0])
       .subscribe(res => {
         this.weatherForecastData = res;
-        this.afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
+        loc = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
           this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
           this.weatherForecastData.list[0].main.temp);
         var locAfti = {
           coords: coords,
-          afti: this.afti,
+          afti: loc,
           index: 0
         };
 
         this.allAftiScores.push(locAfti);
         console.log('ALL AFTI: ', this.allAftiScores);
       });
-      return this.afti
+    return loc
   }
 
 
 
   showGrid(map: L.Map, coords: any) {
     console.log('showGrid called ');
-    //bbox: any = [-124,32,-110,49];
-    this.bbox = [coords.lng - .2, coords.lat - .14, coords.lng + .2, coords.lat + .14];
+    //this.bbox = [coords.lng - .1, coords.lat - .07, coords.lng + .1, coords.lat + .07]; //smaller bbox
+    //this.bbox = [coords.lng - .1, coords.lat - .07, coords.lng + .1, coords.lat + .07]; //small bbox
+    this.bbox = [coords.lng - .4, coords.lat - .28, coords.lng + .4, coords.lat + .28];
     this.hexgrid = T.hexGrid(this.bbox, this.cellSide);
 
 
+    // RANDOM HEXGRID COLORIZATION
     for (var i = 0; i < Object.keys(this.hexgrid.features).length; i++) {
-
       var randNum = Math.floor(Math.random() * (50 - 1) + 1);
-      this.hexgrid.features[i].properties['count'] = randNum;
+      this.hexgrid.features[i].properties['afti'] = randNum;
+      this.hexgrid.features[i].properties['index'] = i;
       //var geojson = L.geoJSON(this.hexgrid.features[i]).addTo(map);
-      this.hexgrid.features[1].properties['count'] = 65;
+      //this.hexgrid.features[1].properties['afti'] = 65;
       var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.onEachHex }).addTo(map);
     }
   }
+
+  recursiveConsume(unioned: any, pt: any, e: any, map: L.Map) {
+    var bbpoly = T.bboxPolygon(this.bbox);
+    for (var i = 0; i < Object.keys(this.hexgrid.features).length; i++) {
+
+      //GET HEXGRID INDEX
+      if (T.booleanPointInPolygon(pt, this.hexgrid.features[i])) {
+        console.log('I: ', i);
+        var locAfti = {
+          coords: e.latlng,
+          afti: this.hexgrid.features[i].properties.afti,
+          index: i
+        };
+
+        this.allAftiScores.push(locAfti);
+        console.log('ALL AFTI: ', this.allAftiScores);
+        for (var j = 0; j < Object.keys(this.hexgrid.features).length; j++) {
+          if (T.intersect(this.hexgrid.features[i], this.hexgrid.features[j])) {
+            //console.log('i j: ', i,j);
+            //if (this.hexgrid.features[i].properties.afti > 30) {
+            unioned = T.union(this.hexgrid.features[i], this.hexgrid.features[j]);
+            this.hexgrid.features[i].properties.afti = -1;
+            var un = L.geoJSON(unioned).addTo(map);
+            //var gj = L.geoJSON(this.hexgrid.features[i], { onEachFeature: this.iterateOverHex }).addTo(map);
+            //}
+          }
+        }
+        
+      }
+    }
+  }
+
+  // incrementGrid(hg: T.FeatureCollection) {
+  //   var t = 30;
+  //   var a = this.allAftiScores;
+  //   while (a) {
+  //     for (var i=0; i<a.length; i+=1) {
+  //       if (a.afti < t) {
+  //         a.afti += .2;
+  //       }
+  //       else {
+  //         a.splice(i, 1);
+  //         getAdjacent(a.index).addTo(a);
+  //       }
+  //     }
+  //   }
+
+  // }
 
 
   ngOnInit() { }

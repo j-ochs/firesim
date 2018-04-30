@@ -36,13 +36,13 @@ export class ElevationService {
               'Accept': 'application/json'
             })
         });
-        //https://api.onwater.io/api/v1/results/34.2832,-119.3180?access_token=qscfzdjmKTp3z1os1txj
-        //http://maps.googleapis.com/maps/api/staticmap?center={35.1479,-119.7842}&zoom=12&size=600x600&maptype=roadmap&key=AIzaSyAzAy0Bp_D47hzpkNjFAY0szLh8I-f5ZTE
-        return this.http.get(staticEnv.baseUrl + 'staticmap?center=' + lat + ',' + lng + '&zoom=' + zoom + '&size=600x600&maptype=roadmap&key=' + staticEnv.appId, { responseType: ResponseContentType.Blob })
+        //http://maps.googleapis.com/maps/api/staticmap?center=35.1479,-119.7842&zoom=12&size=600x600&maptype=roadmap&key=AIzaSyAzAy0Bp_D47hzpkNjFAY0szLh8I-f5ZTE
+        return this.http.get(staticEnv.baseUrl + 'staticmap?center=' + lat + ',' + lng + '&zoom=' + zoom + '&size=600x600&maptype=roadmap&key=' + staticEnv.appId, { responseType: ResponseContentType.Json })
             .map(this.extractData)
             .catch(this.handleError);
     }
 
+    //15 free requests/minute
     getOnWater(lat: number, lng: number): Observable<any[]> {
         //https://api.onwater.io/api/v1/results/34.2832,-119.3180?access_token=qscfzdjmKTp3z1os1txj
         return this.http.get('https://api.onwater.io/api/v1/results/' + lat + ',' + lng + '?access_token=qscfzdjmKTp3z1os1txj')

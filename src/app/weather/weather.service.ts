@@ -12,6 +12,7 @@ export class WeatherService {
     constructor(private http: Http) {
     }
 
+    //60 free requests/minute
     getWeatherForecast(lat: any, lng: any): Observable<any[]> {
         //console.log('forecast for coords: ', lat, lng);
         //'forecast?q=' + cityName + '&appid=' + environment.appId + '&units=' + environment.units
