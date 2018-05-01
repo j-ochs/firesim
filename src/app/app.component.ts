@@ -209,37 +209,37 @@ export class AppComponent {
     map.on('click', (e: any) => {
 
       //AFTI DATA API CALLS -------------------------------------------------------------
-      // this.bbox = [e.latlng.lng - .2, e.latlng.lat - .14, e.latlng.lng + .2, e.latlng.lat + .14];
-      // this._weatherService.getWeatherForecast(e.latlng.lat, e.latlng.lng)
-      //   .subscribe(res => {
-      //     this.weatherForecastData = res;
-      //     this.afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
-      //       this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
-      //       this.weatherForecastData.list[0].main.temp);
-      //       this._elevationService.getOnWater(e.latlng.lat, e.latlng.lng)
-      //       .subscribe(res => {
-      //         this.onwater = res;
-      //         if (this.onwater.water) {
-      //           this.afti = 0
-      //           var popup = L.popup().setLatLng(e.latlng)
-      //           .setContent('No fire here, this is water!').openOn(map);
-      //         }
-      //         console.log('ONWATER res: ', this.onwater, this.afti);
-      //       },
-      //       error => this.errorMessage = <any>error);
+      this.bbox = [e.latlng.lng - .2, e.latlng.lat - .14, e.latlng.lng + .2, e.latlng.lat + .14];
+      this._weatherService.getWeatherForecast(e.latlng.lat, e.latlng.lng)
+        .subscribe(res => {
+          this.weatherForecastData = res;
+          this.afti = this.calculateAfti(this.weatherForecastData.list[0].wind.speed,
+            this.weatherForecastData.list[0].main.humidity, this.weatherForecastData.list[0].weather[0].description,
+            this.weatherForecastData.list[0].main.temp);
+            this._elevationService.getOnWater(e.latlng.lat, e.latlng.lng)
+            .subscribe(res => {
+              this.onwater = res;
+              if (this.onwater.water) {
+                this.afti = 0
+                var popup = L.popup().setLatLng(e.latlng)
+                .setContent('No fire here, this is water!').openOn(map);
+              }
+              console.log('ONWATER res: ', this.onwater, this.afti);
+            },
+            error => this.errorMessage = <any>error);
 
-      //     //console.log('ONWATER: ', this.getOnWaterByCoords(e.latlng.lat, e.latlng.lng));
-      //     //      WEATHER POPUP DATA -------------------------------------------------------------------
-      //     var popup = L.popup()
-      //       .setLatLng(e.latlng)
-      //       .setContent(this.weatherForecastData.city.name + ' at ' + this.weatherForecastData.list[0].dt_txt + ': '
-      //       + this.weatherForecastData.list[0].weather[0].description + '<br>' + 'Wind speed: ' + this.weatherForecastData.list[0].wind.speed
-      //       + ' , ' + this.weatherForecastData.list[0].wind.deg + ' | Humidity: ' + this.weatherForecastData.list[0].main.humidity
-      //       + '<br> Temp: ' + this.weatherForecastData.list[0].main.temp + ' | Elev: ' + this.elevationData.results[0].elevation / .3048 + '<br><b> AFTI Score: ' + this.afti + '</b><br>')
-      //       .openOn(map);
-      //   },
-      //   error => this.errorMessage = <any>error);
-      // console.log('ELEV: ', this.getElevationByCoords(e.latlng.lat, e.latlng.lng));
+          //console.log('ONWATER: ', this.getOnWaterByCoords(e.latlng.lat, e.latlng.lng));
+          //      WEATHER POPUP DATA -------------------------------------------------------------------
+          var popup = L.popup()
+            .setLatLng(e.latlng)
+            .setContent(this.weatherForecastData.city.name + ' at ' + this.weatherForecastData.list[0].dt_txt + ': '
+            + this.weatherForecastData.list[0].weather[0].description + '<br>' + 'Wind speed: ' + this.weatherForecastData.list[0].wind.speed
+            + ' , ' + this.weatherForecastData.list[0].wind.deg + ' | Humidity: ' + this.weatherForecastData.list[0].main.humidity
+            + '<br> Temp: ' + this.weatherForecastData.list[0].main.temp + ' | Elev: ' + this.elevationData.results[0].elevation / .3048 + '<br><b> AFTI Score: ' + this.afti + '</b><br>')
+            .openOn(map);
+        },
+        error => this.errorMessage = <any>error);
+      console.log('ELEV: ', this.getElevationByCoords(e.latlng.lat, e.latlng.lng));
       //console.log('STATIC: ', this.getStaticPixelByCoords(e.latlng.lat, e.latlng.lng, map.getZoom()));
 
       var pt = T.point([e.latlng.lng, e.latlng.lat]);
@@ -252,7 +252,7 @@ export class AppComponent {
 
 
 
-        this.recursiveConsume(unioned, pt, e, map);
+        //this.recursiveConsume(unioned, pt, e, map);
 
         //WARNING - API OVERFLOW:
         //this.hexgrid.features[i].properties['afti'] = this.getAftiData(this.hexgrid.features[i].geometry.coordinates[0][1]); 
