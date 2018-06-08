@@ -1,3 +1,4 @@
+[![GitHub issue last update](https://img.shields.io/github/issues/detail/last-update/badges/shields/979.svg)](gihub.com/j-ochs/firesim)
 [![HitCount](http://hits.dwyl.io/j-ochs/firesim.svg)](http://hits.dwyl.io/j-ochs/firesim)
 # Firesim
 
