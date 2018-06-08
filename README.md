@@ -1,3 +1,4 @@
+[![HitCount](http://hits.dwyl.io/j-ochs/firesim.svg)](http://hits.dwyl.io/j-ochs/firesim)
 # Firesim
 
 Firesim is a predictive wildfire simulator. This project is currently under development.
